@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -20,19 +20,12 @@ function VerifyContent() {
   const searchParams = useSearchParams();
   const queryHash = searchParams.get("hash");
 
-  const [inputHash, setInputHash] = useState("");
+  const [inputHash, setInputHash] = useState(() => queryHash || "");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<"idle" | "verified" | "not_found">("idle");
   const [proof, setProof] = useState<ProofDetails | null>(null);
 
-  useEffect(() => {
-    if (queryHash) {
-      setInputHash(queryHash);
-      handleVerify(queryHash);
-    }
-  }, [queryHash]);
-
-  const handleVerify = async (hashToVerify: string) => {
+  const handleVerify = useCallback(async (hashToVerify: string) => {
     const cleanHash = hashToVerify.replace(/^0x/, "").trim();
     if (cleanHash.length !== 64) {
       alert("Hash must be exactly 64 characters (SHA-256)");
@@ -57,7 +50,15 @@ function VerifyContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (queryHash) {
+      setTimeout(() => {
+        handleVerify(queryHash);
+      }, 0);
+    }
+  }, [queryHash, handleVerify]);
 
   const handleHashComputed = (hash: string) => {
     setInputHash(hash);

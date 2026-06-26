@@ -109,9 +109,10 @@ export default function Home() {
         throw new Error(`Transaction execution failed with status: ${getTxResponse.status}`);
       }
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setTxError(err.message || "An unexpected error occurred during proof registration.");
+      const errMsg = err instanceof Error ? err.message : "An unexpected error occurred during proof registration.";
+      setTxError(errMsg);
       setTxStep("error");
     }
   };
@@ -150,8 +151,8 @@ export default function Home() {
               {txStep === "idle" && (
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between text-xs text-zinc-400">
-                    <span>File size: {Math.round(fileSize / 1024)} KB</span>
-                    <span>Ready for registration</span>
+                    <span className="truncate max-w-[220px]" title={fileName}>File: {fileName}</span>
+                    <span>Size: {Math.round(fileSize / 1024)} KB</span>
                   </div>
                   
                   {connected ? (
@@ -200,7 +201,7 @@ export default function Home() {
                   </div>
                   <h4 className="text-lg font-bold text-emerald-400 mb-2">Proof Registered Successfully</h4>
                   <p className="text-xs text-zinc-400 max-w-md mb-6">
-                    Your file's SHA-256 hash is permanently timestamped on the Stellar network.
+                    Your file&apos;s SHA-256 hash is permanently timestamped on the Stellar network.
                     You can view the transaction record or verify the file anytime on the Verify page.
                   </p>
                   

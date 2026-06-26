@@ -3,7 +3,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AnimatedBackground from "@/components/AnimatedBackground";
-import { ShieldAlert, Fingerprint, History, Award, CheckCircle, Database } from "lucide-react";
+import { Fingerprint, History, Award, CheckCircle, Database } from "lucide-react";
 
 export default function About() {
   const steps = [
@@ -40,7 +40,7 @@ export default function About() {
               How ProofVault Works
             </h1>
             <p className="text-zinc-400 text-base leading-relaxed">
-              ProofVault leverages Stellar's Soroban smart contract framework to provide decentralized proof of existence,
+              ProofVault leverages Stellar&apos;s Soroban smart contract framework to provide decentralized proof of existence,
               enabling users to prove document ownership at a point in time with absolute privacy.
             </p>
           </div>

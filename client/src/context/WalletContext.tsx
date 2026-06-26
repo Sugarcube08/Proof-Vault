@@ -20,7 +20,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const savedAddress = localStorage.getItem("proofvault_wallet");
     if (savedAddress) {
-      setAddress(savedAddress);
+      setTimeout(() => {
+        setAddress(savedAddress);
+      }, 0);
     }
   }, []);
 

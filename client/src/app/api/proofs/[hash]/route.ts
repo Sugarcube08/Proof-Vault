@@ -18,7 +18,7 @@ export async function GET(
     }
 
     return NextResponse.json(proof);
-  } catch (error: any) {
+  } catch (error) {
     console.error("GET /api/proofs/[hash] error:", error);
     return NextResponse.json({ error: "Failed to fetch proof" }, { status: 500 });
   }

@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { UploadCloud, File, FileText, CheckCircle, AlertCircle, Hash, Loader2 } from "lucide-react";
+import { UploadCloud, FileText, AlertCircle, Hash, Loader2 } from "lucide-react";
 
 interface UploaderProps {
   onHashComputed: (hash: string, fileName: string, fileSize: number) => void;
@@ -18,6 +18,7 @@ export default function Uploader({ onHashComputed, isLoading = false }: Uploader
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDrag = (e: React.DragEvent) => {
+    if (isLoading) return;
     e.preventDefault();
     e.stopPropagation();
     if (e.type === "dragenter" || e.type === "dragover") {
@@ -38,7 +39,7 @@ export default function Uploader({ onHashComputed, isLoading = false }: Uploader
       
       setHash(hashHex);
       onHashComputed(hashHex, selectedFile.name, selectedFile.size);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
       setError("Failed to compute SHA-256 hash. Please try another file.");
     } finally {
@@ -47,6 +48,7 @@ export default function Uploader({ onHashComputed, isLoading = false }: Uploader
   };
 
   const handleDrop = async (e: React.DragEvent) => {
+    if (isLoading) return;
     e.preventDefault();
     e.stopPropagation();
     setIsDragActive(false);
@@ -100,7 +102,7 @@ export default function Uploader({ onHashComputed, isLoading = false }: Uploader
         onDragOver={handleDrag}
         onDragLeave={handleDrag}
         onDrop={handleDrop}
-        onClick={!file ? onButtonClick : undefined}
+        onClick={!file && !isLoading ? onButtonClick : undefined}
         className={`relative flex flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center transition-all duration-300 ${
           file ? "cursor-default" : "cursor-pointer"
         } ${

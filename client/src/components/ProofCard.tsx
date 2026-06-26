@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { CheckCircle2, XCircle, Calendar, Shield, User, FileText, QrCode, Download, ExternalLink, RefreshCw } from "lucide-react";
+import { CheckCircle2, XCircle, Calendar, Shield, User, QrCode, Download, ExternalLink, RefreshCw } from "lucide-react";
 import QRCode from "qrcode";
 import jsPDF from "jspdf";
 

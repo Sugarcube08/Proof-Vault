@@ -26,28 +26,28 @@ export default function Dashboard() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
+    const fetchProofs = async () => {
+      setLoading(true);
+      try {
+        const url = `/api/proofs?wallet=${address}&page=${page}&limit=10&search=${search}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (res.ok) {
+          setProofs(data.proofs || []);
+          setTotalPages(data.totalPages || 1);
+          setTotal(data.total || 0);
+        }
+      } catch (error) {
+        console.error("Error fetching dashboard proofs:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (connected && address) {
       fetchProofs();
     }
   }, [connected, address, page, search]);
-
-  const fetchProofs = async () => {
-    setLoading(true);
-    try {
-      const url = `/api/proofs?wallet=${address}&page=${page}&limit=10&search=${search}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (res.ok) {
-        setProofs(data.proofs || []);
-        setTotalPages(data.totalPages || 1);
-        setTotal(data.total || 0);
-      }
-    } catch (error) {
-      console.error("Error fetching dashboard proofs:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSearchChange = (newSearch: string) => {
     setSearch(newSearch);

@@ -11,9 +11,12 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: {
+      wallet?: string;
+      hash?: { contains: string; mode: "insensitive" };
+    } = {};
     if (wallet) {
-      where.wallet = { equals: wallet, mode: "insensitive" };
+      where.wallet = wallet;
     }
     if (search) {
       where.hash = { contains: search, mode: "insensitive" };
@@ -36,7 +39,7 @@ export async function GET(request: NextRequest) {
       limit,
       totalPages: Math.ceil(total / limit),
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("GET /api/proofs error:", error);
     return NextResponse.json({ error: "Failed to fetch proofs" }, { status: 500 });
   }
@@ -70,7 +73,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(proof, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
     console.error("POST /api/proofs error:", error);
     return NextResponse.json({ error: "Failed to register proof" }, { status: 500 });
   }

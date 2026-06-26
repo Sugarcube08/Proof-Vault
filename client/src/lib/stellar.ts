@@ -32,12 +32,13 @@ export async function simulateCall(method: string, args: xdr.ScVal[]): Promise<x
   let account;
   try {
     account = await server.getAccount(dummySource);
-  } catch (e) {
+  } catch {
     // If the account doesn't exist, we construct a mock Account object with sequence 1
     // which is sufficient for simulation
     account = {
       sequenceNumber: () => "1",
       accountId: () => dummySource,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
   }
 
@@ -59,6 +60,7 @@ export async function simulateCall(method: string, args: xdr.ScVal[]): Promise<x
   } else if (rpc.Api.isSimulationRestore(sim)) {
     throw new Error("Simulation requires storage restoration.");
   } else {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const errorMsg = (sim as any).error || "Unknown simulation failure";
     throw new Error(`Simulation failed: ${errorMsg}`);
   }
@@ -111,7 +113,7 @@ export async function getProofsByOwner(ownerAddress: string): Promise<Proof[]> {
     if (!retval) return [];
     const native = scValToNative(retval);
     if (!Array.isArray(native)) return [];
-    return native.map((item: any) => ({
+    return native.map((item: { owner: string; hash: Uint8Array | Buffer; timestamp: number | bigint }) => ({
       owner: item.owner,
       hash: Buffer.from(item.hash).toString("hex"),
       timestamp: Number(item.timestamp),
