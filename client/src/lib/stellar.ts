@@ -1,4 +1,4 @@
-import { rpc, Contract, Address, scValToNative, xdr, TransactionBuilder, Networks } from "stellar-sdk";
+import { rpc, Contract, Address, scValToNative, xdr, TransactionBuilder, Networks } from "@stellar/stellar-sdk";
 
 const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org";
 const CONTRACT_ID = process.env.NEXT_PUBLIC_CONTRACT_ID || "";

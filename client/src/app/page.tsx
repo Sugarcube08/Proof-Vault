@@ -7,7 +7,7 @@ import AnimatedBackground from "@/components/AnimatedBackground";
 import Uploader from "@/components/Uploader";
 import { useWallet } from "@/context/WalletContext";
 import { buildRegisterProofTx, getRpcServer, getNetworkPassphrase, checkProofExists } from "@/lib/stellar";
-import { Transaction } from "stellar-sdk";
+import { Transaction } from "@stellar/stellar-sdk";
 import { signTransaction } from "@stellar/freighter-api";
 import { ShieldCheck, Loader2, Sparkles, AlertTriangle, ArrowRight } from "lucide-react";
 import confetti from "canvas-confetti";
