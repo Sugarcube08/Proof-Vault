@@ -1,9 +1,9 @@
 #![cfg(test)]
 use super::*;
-use soroban_sdk::{BytesN, Env, TryFromVal};
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::testutils::Events as _;
 use soroban_sdk::testutils::Ledger as _;
+use soroban_sdk::{BytesN, Env, TryFromVal};
 
 fn create_hash(env: &Env, byte: u8) -> BytesN<32> {
     let mut arr = [0u8; 32];
@@ -119,8 +119,12 @@ fn test_get_proofs_by_owner() {
     let mut found1 = false;
     let mut found2 = false;
     for proof in proofs.iter() {
-        if proof.hash == hash1 { found1 = true; }
-        if proof.hash == hash2 { found2 = true; }
+        if proof.hash == hash1 {
+            found1 = true;
+        }
+        if proof.hash == hash2 {
+            found2 = true;
+        }
     }
     assert!(found1);
     assert!(found2);
@@ -177,21 +181,19 @@ fn test_event_emitted() {
     assert_eq!(events_vec.len(), 1);
 
     let event = &events_vec[0];
-    if let soroban_sdk::xdr::ContractEventBody::V0(event_v0) = &event.body {
-        let data_val = soroban_sdk::Val::try_from_val(&env, &event_v0.data).unwrap();
+    let soroban_sdk::xdr::ContractEventBody::V0(event_v0) = &event.body;
+    let data_val = soroban_sdk::Val::try_from_val(&env, &event_v0.data).unwrap();
 
-        let mut topics_vec = soroban_sdk::Vec::new(&env);
-        for scval in event_v0.topics.iter() {
-            topics_vec.push_back(soroban_sdk::Val::try_from_val(&env, scval).unwrap());
-        }
-        let topic_symbol: soroban_sdk::Symbol = soroban_sdk::FromVal::from_val(&env, &topics_vec.get(0).unwrap());
-        assert_eq!(topic_symbol, soroban_sdk::symbol_short!("reg_proof"));
-
-        let (event_owner, event_hash, _timestamp): (Address, BytesN<32>, u64) =
-            soroban_sdk::FromVal::from_val(&env, &data_val);
-        assert_eq!(event_owner, owner);
-        assert_eq!(event_hash, hash);
-    } else {
-        panic!("unexpected event body");
+    let mut topics_vec = soroban_sdk::Vec::new(&env);
+    for scval in event_v0.topics.iter() {
+        topics_vec.push_back(soroban_sdk::Val::try_from_val(&env, scval).unwrap());
     }
+    let topic_symbol: soroban_sdk::Symbol =
+        soroban_sdk::FromVal::from_val(&env, &topics_vec.get(0).unwrap());
+    assert_eq!(topic_symbol, soroban_sdk::symbol_short!("reg_proof"));
+
+    let (event_owner, event_hash, _timestamp): (Address, BytesN<32>, u64) =
+        soroban_sdk::FromVal::from_val(&env, &data_val);
+    assert_eq!(event_owner, owner);
+    assert_eq!(event_hash, hash);
 }
