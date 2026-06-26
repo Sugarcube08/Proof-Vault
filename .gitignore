@@ -1,0 +1,10 @@
+# Dependencies
+node_modules/
+/client/node_modules/
+/client/.next/
+/client/.env
+/client/.env*.local
+
+# Rust/Soroban Build
+/contract/target/
+/contract/contracts/contract/target/

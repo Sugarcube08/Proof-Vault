@@ -1,8 +1,9 @@
 #![cfg(test)]
 use super::*;
-use soroban_sdk::{BytesN, Env};
+use soroban_sdk::{BytesN, Env, TryFromVal};
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::testutils::Events as _;
+use soroban_sdk::testutils::Ledger as _;
 
 fn create_hash(env: &Env, byte: u8) -> BytesN<32> {
     let mut arr = [0u8; 32];
@@ -13,6 +14,7 @@ fn create_hash(env: &Env, byte: u8) -> BytesN<32> {
 #[test]
 fn test_register_and_verify() {
     let env = Env::default();
+    env.ledger().set_timestamp(1000);
     env.mock_all_auths();
     let contract_id = env.register(Contract, ());
     let client = ContractClient::new(&env, &contract_id);
@@ -170,12 +172,26 @@ fn test_event_emitted() {
     client.register_proof(&owner, &hash);
 
     let events = env.events().all();
-    assert_eq!(events.len(), 1);
-    let (contract, _topics, data) = &events.get(0).unwrap();
-    assert_eq!(*contract, contract_id);
+    let contract_events = events.filter_by_contract(&contract_id);
+    let events_vec = contract_events.events();
+    assert_eq!(events_vec.len(), 1);
 
-    let (event_owner, event_hash, _timestamp): (Address, BytesN<32>, u64) =
-        soroban_sdk::IntoVal::into_val(data, &env);
-    assert_eq!(event_owner, owner);
-    assert_eq!(event_hash, hash);
+    let event = &events_vec[0];
+    if let soroban_sdk::xdr::ContractEventBody::V0(event_v0) = &event.body {
+        let data_val = soroban_sdk::Val::try_from_val(&env, &event_v0.data).unwrap();
+
+        let mut topics_vec = soroban_sdk::Vec::new(&env);
+        for scval in event_v0.topics.iter() {
+            topics_vec.push_back(soroban_sdk::Val::try_from_val(&env, scval).unwrap());
+        }
+        let topic_symbol: soroban_sdk::Symbol = soroban_sdk::FromVal::from_val(&env, &topics_vec.get(0).unwrap());
+        assert_eq!(topic_symbol, soroban_sdk::symbol_short!("reg_proof"));
+
+        let (event_owner, event_hash, _timestamp): (Address, BytesN<32>, u64) =
+            soroban_sdk::FromVal::from_val(&env, &data_val);
+        assert_eq!(event_owner, owner);
+        assert_eq!(event_hash, hash);
+    } else {
+        panic!("unexpected event body");
+    }
 }
