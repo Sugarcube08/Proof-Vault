@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import Uploader from "@/components/Uploader";
 import { useWallet } from "@/context/WalletContext";
-import { buildRegisterProofTx, getRpcServer, getNetworkPassphrase } from "@/lib/stellar";
+import { buildRegisterProofTx, getRpcServer, getNetworkPassphrase, checkProofExists } from "@/lib/stellar";
 import { Transaction } from "stellar-sdk";
 import { signTransaction } from "@stellar/freighter-api";
 import { ShieldCheck, Loader2, Sparkles, AlertTriangle, ArrowRight } from "lucide-react";
@@ -48,6 +48,13 @@ export default function Home() {
       
       // Step 1: Preparing Transaction
       setTxStep("preparing");
+
+      // Precheck if proof already exists on-chain to avoid duplicate simulation traps
+      const exists = await checkProofExists(fileHash);
+      if (exists) {
+        throw new Error("This file proof has already been registered on the Stellar network.");
+      }
+      
       const xdrPayload = await buildRegisterProofTx(address, fileHash);
       
       // Step 2: Requesting User Signature

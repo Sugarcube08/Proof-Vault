@@ -251,7 +251,7 @@ export default function ProofCard({ status, proof, onReset }: ProofCardProps) {
               <Shield className="h-3.5 w-3.5 text-red-400" />
               <span>SHA-256 HASH SEARCHED</span>
             </div>
-            <p className="font-mono text-xs text-zinc-400 break-all select-all">{proof ? "" : "Hash does not match any registered certificate."}</p>
+            <p className="font-mono text-xs text-zinc-400 break-all select-all">{proof?.hash || "Hash does not match any registered certificate."}</p>
           </div>
 
           <div className="flex gap-4 justify-end">

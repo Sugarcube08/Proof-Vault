@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import Uploader from "@/components/Uploader";
 import ProofCard from "@/components/ProofCard";
-import { verifyProof } from "@/lib/stellar";
+import { verifyProof, checkProofExists } from "@/lib/stellar";
 import { Search, Loader2, FileSearch } from "lucide-react";
 
 interface ProofDetails {
@@ -37,15 +37,26 @@ function VerifyContent() {
     setProof(null);
 
     try {
+      // Pre-check if proof exists on-chain to avoid throwing VM traps on non-existent proofs
+      const exists = await checkProofExists(cleanHash);
+      if (!exists) {
+        setProof({ owner: "", hash: cleanHash, timestamp: 0 });
+        setStatus("not_found");
+        setLoading(false);
+        return;
+      }
+
       const proofResult = await verifyProof(cleanHash);
       if (proofResult) {
         setProof(proofResult);
         setStatus("verified");
       } else {
+        setProof({ owner: "", hash: cleanHash, timestamp: 0 });
         setStatus("not_found");
       }
     } catch (error) {
       console.error(error);
+      setProof({ owner: "", hash: cleanHash, timestamp: 0 });
       setStatus("not_found");
     } finally {
       setLoading(false);
