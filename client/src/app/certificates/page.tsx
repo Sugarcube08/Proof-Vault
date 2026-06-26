@@ -4,10 +4,9 @@ import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AnimatedBackground from "@/components/AnimatedBackground";
-import DashboardTable from "@/components/DashboardTable";
-import MetricsCards from "@/components/MetricsCards";
+import CertificatesGrid from "@/components/CertificatesGrid";
 import { useWallet } from "@/context/WalletContext";
-import { Shield, Wallet, Lock } from "lucide-react";
+import { Shield, Wallet, Lock, Award } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface DatabaseProof {
@@ -17,30 +16,25 @@ interface DatabaseProof {
   createdAt: string;
 }
 
-export default function Dashboard() {
+export default function Certificates() {
   const { address, connected, connect } = useWallet();
 
   const [proofs, setProofs] = useState<DatabaseProof[]>([]);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [search, setSearch] = useState("");
 
   useEffect(() => {
     const fetchProofs = async () => {
       setLoading(true);
       try {
-        const url = `/api/proofs?wallet=${address}&page=${page}&limit=10&search=${search}`;
+        // Fetch user proofs (limit up to 100 for the certificates directory)
+        const url = `/api/proofs?wallet=${address}&page=1&limit=100`;
         const res = await fetch(url);
         const data = await res.json();
         if (res.ok) {
           setProofs(data.proofs || []);
-          setTotalPages(data.totalPages || 1);
-          setTotal(data.total || 0);
         }
       } catch (error) {
-        console.error("Error fetching dashboard proofs:", error);
+        console.error("Error fetching certificates:", error);
       } finally {
         setLoading(false);
       }
@@ -49,12 +43,7 @@ export default function Dashboard() {
     if (connected && address) {
       fetchProofs();
     }
-  }, [connected, address, page, search]);
-
-  const handleSearchChange = (newSearch: string) => {
-    setSearch(newSearch);
-    setPage(1); // reset to first page on search
-  };
+  }, [connected, address]);
 
   return (
     <div className="relative min-h-screen flex flex-col justify-between overflow-x-hidden bg-black text-white">
@@ -77,7 +66,7 @@ export default function Dashboard() {
                 Authentication Required
               </h1>
               <p className="text-zinc-500 text-sm max-w-sm mb-6 leading-relaxed">
-                Please connect your Freighter wallet to view and manage your registered document proofs.
+                Please connect your Freighter wallet to view and manage your generated proof certificates.
               </p>
               <button
                 onClick={connect}
@@ -88,7 +77,7 @@ export default function Dashboard() {
               </button>
             </motion.div>
           ) : (
-            /* Authenticated Dashboard */
+            /* Authenticated Certificates view */
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -97,41 +86,25 @@ export default function Dashboard() {
               {/* Header */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-900 pb-6">
                 <div>
-                  <h1 className="text-3xl font-bold text-white tracking-tight">Your Dashboard</h1>
+                  <h1 className="text-3xl font-bold text-white tracking-tight">Your Certificates</h1>
                   <p className="text-zinc-500 text-sm">
-                    Manage and inspect proofs registered from your connected address.
+                    View, share, and download PDF certificates for your registered document signatures.
                   </p>
                 </div>
                 <div className="flex items-center gap-2 rounded-lg border border-zinc-900 bg-zinc-950 px-4 py-2 text-xs text-zinc-400 self-start shadow-sm">
-                  <Shield className="h-4 w-4 text-indigo-400" />
+                  <Award className="h-4 w-4 text-indigo-400" />
                   <span className="font-mono text-zinc-300">
-                    {address?.slice(0, 10)}...{address?.slice(-10)}
+                    {proofs.length} Generated
                   </span>
                 </div>
               </div>
 
-              {/* Metrics Section */}
-              <MetricsCards
-                proofs={proofs}
-                total={total}
-                loading={loading}
-                walletAddress={address}
-              />
-
-              {/* Table Section */}
+              {/* Grid Section */}
               <div className="space-y-4">
-                <div className="text-left">
-                  <h2 className="text-lg font-bold text-zinc-200">Registered Fingerprints</h2>
-                  <p className="text-zinc-500 text-xs mt-0.5">Filter, search, or inspect your immutable ledger entries.</p>
-                </div>
-                <DashboardTable
+                <CertificatesGrid
                   proofs={proofs}
                   loading={loading}
-                  page={page}
-                  totalPages={totalPages}
-                  total={total}
-                  onPageChange={setPage}
-                  onSearchChange={handleSearchChange}
+                  walletAddress={address}
                 />
               </div>
             </motion.div>
