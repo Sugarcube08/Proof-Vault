@@ -141,3 +141,8 @@ Access the frontend app at [http://localhost:3000](http://localhost:3000).
 
 ## License
 MIT
+
+
+---
+### Stellar Smart Contract Address
+`CDOTTVKPIC3QWBFPFD7PPRP6LGYAMMEDLSFOPXKSCF2P5KM44LWJ7DMF`
